@@ -1,0 +1,6 @@
+ServerAddr="ws://localhost:8080/ws"
+[[Proxy]]
+    Name ="ssh"
+    ClientPort   =9212
+    RemotePort   =22
+    RemoteAddress ="dev.xx.com"
