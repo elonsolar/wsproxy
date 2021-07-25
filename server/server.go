@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 	"net"
 	"net/http"
-	. "pkg"
+	. "github.com/elonsolar/wsproxy/pkg"
 	"github.com/gorilla/websocket"
 )
 

@@ -1,4 +1,4 @@
-module wxpxy.pkg
+module github.com/elonsolar/wsproxy/pkg
 
 go 1.16
 

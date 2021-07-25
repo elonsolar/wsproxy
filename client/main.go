@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
-	. "pkg"
+	. "github.com/elonsolar/wsproxy/pkg"
 	"github.com/BurntSushi/toml"
 	"github.com/gorilla/websocket"
 )
