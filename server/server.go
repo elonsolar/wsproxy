@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -34,18 +34,12 @@ func WsProxy(writer http.ResponseWriter, request *http.Request) {
 // first of all login
 func handleConnection(con *websocket.Conn) {
 
-	var pxy TcpProxy = TcpProxy{
-		Name:          "ssh",
-		ClientPort:    9121,
-		RemotePort:    22,
-		RemoteAddress: "dev.codenai.com",
-	}
+	var pxy TcpProxy
 	err := con.ReadJSON(&pxy)
 	if err != nil {
-		Zapper.Error("login err", zap.Error(err))
+		Logger.Error("login err", zap.Error(err))
 		return
 	}
-	fmt.Println(pxy)
 	localCon, err := net.Dial("tcp", fmt.Sprintf("%s:%d", pxy.RemoteAddress, pxy.RemotePort))
 	if err != nil {
 		panic(err)

@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"io"
 	"net"
 
@@ -20,22 +21,30 @@ type TcpProxy struct {
 func (tp *TcpProxy) Serve(con net.Conn, wsCon *websocket.Conn)  {
 
 	var copyWs2Tcp = func(con net.Conn, wsCon *websocket.Conn) {
+		defer con.Close()
+		defer wsCon.Close()
 		fmt.Println("ws ---->tcp")
 		for {
 			_, buff, err := wsCon.ReadMessage()
 			if err != nil {
-				wsCon.Close()
+				Logger.Error("read from websocket",zap.Error(err))
+				return
 			}
-			fmt.Println(" read from ws", string(buff))
-			_, err = con.Write(buff)
-			if err != nil {
-				con.Close()
+			if len(buff)>0{
+				fmt.Println(" read from ws", string(buff))
+				_, err = con.Write(buff)
+				if err != nil {
+					Logger.Error("write to tcp connection",zap.Error(err))
+					return
+				}
 			}
 
 		}
 	}
 
 	var copyTcp2Ws = func(wsCon *websocket.Conn, con net.Conn) {
+		defer wsCon.Close()
+		defer con.Close()
 		fmt.Println("tcp ---->ws")
 		buff := make([]byte, 16*1024)
 		for {
@@ -43,12 +52,13 @@ func (tp *TcpProxy) Serve(con net.Conn, wsCon *websocket.Conn)  {
 			if n > 0 {
 				err = wsCon.WriteMessage(websocket.BinaryMessage, buff[:n])
 				if err != nil {
-					wsCon.Close()
+					Logger.Error("write to websocket",zap.Error(err))
+					return
 				}
 			}
 			if err != nil {
 				if err != io.EOF {
-					con.Close()
+					Logger.Error("read from tcp connection",zap.Error(err))
 					return
 				}
 			}

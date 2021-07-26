@@ -1,42 +1,20 @@
-package main
+package client
 
 import (
-	"flag"
 	"fmt"
 	"net"
+
 	. "github.com/elonsolar/wsproxy/pkg"
-	"github.com/BurntSushi/toml"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type Config struct {
-	//BindPort   int
 	ServerAddr string
 	Proxy      []*TcpProxy
 }
 
-var (
-	cfg string
-)
-
-func init() {
-	flag.StringVar(&cfg, "cfg", "./client.toml", "")
-}
-
-func main() {
-	flag.Parse()
-
-	var pxyCfg Config
-	if _, err := toml.DecodeFile(cfg, &pxyCfg); err != nil {
-		panic(err)
-	}
-
-	fmt.Println(pxyCfg)
-	proxy(&pxyCfg)
-	select {}
-}
-
-func proxy(pxyCfg *Config) {
+func Proxy(pxyCfg *Config) {
 	for _, pxy := range pxyCfg.Proxy {
 
 		tcpaddr, err := net.ResolveTCPAddr("tcp4", fmt.Sprintf("127.0.0.1:%d", pxy.ClientPort))
@@ -66,20 +44,25 @@ func handleListener(serverAddr string, pxy *TcpProxy, l *net.TCPListener) {
 
 func handleConnection(serverAddr string, pxy *TcpProxy, con net.Conn) {
 
-	pxy.Serve(con, getWsConnection(serverAddr, pxy))
+	wsCon, err := getWsConnection(serverAddr, pxy)
+	if err != nil {
+		Logger.Error("ws error", zap.Error(err))
+		return
+	}
+	pxy.Serve(con, wsCon)
 }
 
-func getWsConnection(serverAddr string, pxy *TcpProxy) *websocket.Conn {
+func getWsConnection(serverAddr string, pxy *TcpProxy) (*websocket.Conn, error) {
 
 	c, _, err := websocket.DefaultDialer.Dial(serverAddr, nil)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("dial websocket err:%w", err)
 	}
 
 	err = c.WriteJSON(pxy)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("init websocket connection err:%w", err)
 	}
 
-	return c
+	return c, nil
 }
