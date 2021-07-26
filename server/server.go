@@ -9,13 +9,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// 每个control 管理多个连接
-// 每个客户端 可以有多个 连接
-//
-type Control struct {
-	RunId  string
-	conMap map[string]*websocket.Conn
-}
+//// 每个control 管理多个连接
+//// 每个客户端 可以有多个 连接
+////
+//type Control struct {
+//	RunId  string
+//	conMap map[string]*websocket.Conn
+//}
 
 //   make it easy
 func WsProxy(writer http.ResponseWriter, request *http.Request) {

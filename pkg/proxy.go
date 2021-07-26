@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// a proxy manage  connection  from client  port <--cross websocket---> server port
+// a proxy   connection  from client  port <--cross websocket---> server port
 type TcpProxy struct {
 	Name          string
 	ClientPort    int
@@ -17,7 +17,7 @@ type TcpProxy struct {
 	RemoteAddress string
 }
 
-// 服务端建立内部连接
+//	tcp con <==>   ws con
 func (tp *TcpProxy) Serve(con net.Conn, wsCon *websocket.Conn)  {
 
 	var copyWs2Tcp = func(con net.Conn, wsCon *websocket.Conn) {
