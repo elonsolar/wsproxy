@@ -3,4 +3,4 @@ ServerAddr="ws://localhost:8080/ws"
     Name ="ssh"
     ClientPort   =9212
     RemotePort   =22
-    RemoteAddress ="dev.codenai.com"
+    RemoteAddress ="dev.com"
